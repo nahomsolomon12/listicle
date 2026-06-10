@@ -23,7 +23,7 @@ const renderHome = (items) => {
     .map(
       (item) => `
         <article class="business-card">
-          <img src="${item.imageUrl}" alt="${item.title}" class="card-image" />
+          
           <div class="card-body">
             <div class="card-kicker">${item.category}</div>
             <h2>${item.title}</h2>
@@ -31,7 +31,7 @@ const renderHome = (items) => {
             <ul class="card-attributes">
               <li><strong>Submitted by:</strong> ${item.submittedBy}</li>
               <li><strong>Route:</strong> /business/${item.slug}</li>
-              <li><strong>Image:</strong> ${item.image}</li>
+              
             </ul>
             <a class="contrast" href="/business/${item.slug}">View details</a>
           </div>

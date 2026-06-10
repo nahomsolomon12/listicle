@@ -67,6 +67,7 @@ function renderLayout({ title, content, includeScript = false }) {
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>${title}</title>
+      <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
       <link rel="stylesheet" href="/styles.css" />
       ${includeScript ? '<script type="module" src="/src/main.js"></script>' : ""}
