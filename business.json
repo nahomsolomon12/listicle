@@ -1,0 +1,72 @@
+[
+  {
+    "title": "Solve a Real Problem",
+    "text": "The best businesses solve a problem people already have. Before building anything, talk to potential customers and learn what frustrates them.",
+    "category": "Market Research",
+    "image": "customer-interview.jpg",
+    "submittedBy": "Startup Guide Team"
+  },
+  {
+    "title": "Start Small and Validate",
+    "text": "Don't spend thousands of dollars on an idea before proving people will buy it. Create a simple version of your product or service and test demand first.",
+    "category": "Product Development",
+    "image": "minimum-viable-product.jpg",
+    "submittedBy": "Startup Guide Team"
+  },
+  {
+    "title": "Know Your Target Customer",
+    "text": "Trying to serve everyone usually means serving no one. Define who your ideal customer is, what problems they face, and what they value most.",
+    "category": "Marketing",
+    "image": "customer-persona.jpg",
+    "submittedBy": "Startup Guide Team"
+  },
+  {
+    "title": "Track Every Dollar",
+    "text": "Many businesses fail because they run out of cash. Create a budget, monitor expenses, and understand where your money is going from day one.",
+    "category": "Finance",
+    "image": "budget-tracking.jpg",
+    "submittedBy": "Startup Guide Team"
+  },
+  {
+    "title": "Choose the Right Business Model",
+    "text": "Understand how your business will generate revenue. Whether you sell products, services, subscriptions, or advertising, your path to profitability should be clear.",
+    "category": "Business Models",
+    "image": "business-model-canvas.jpg",
+    "submittedBy": "Startup Guide Team"
+  },
+  {
+    "title": "Build a Professional Brand",
+    "text": "A clear business name, logo, and message help customers trust you. Consistency across your website, social media, and marketing materials is key.",
+    "category": "Branding",
+    "image": "brand-identity.jpg",
+    "submittedBy": "Startup Guide Team"
+  },
+  {
+    "title": "Learn Basic Sales Skills",
+    "text": "Even the best products need effective sales. Learn how to communicate value, handle objections, and confidently ask customers to make a purchase.",
+    "category": "Sales",
+    "image": "sales-pitch.jpg",
+    "submittedBy": "Startup Guide Team"
+  },
+  {
+    "title": "Focus on Customer Feedback",
+    "text": "Your customers can provide valuable insights about what is working and what needs improvement. Listen carefully and use their feedback to guide decisions.",
+    "category": "Customer Success",
+    "image": "customer-feedback.jpg",
+    "submittedBy": "Startup Guide Team"
+  },
+  {
+    "title": "Document Your Processes",
+    "text": "Write down how recurring tasks are completed. Documented processes save time, improve consistency, and make it easier to train future team members.",
+    "category": "Operations",
+    "image": "workflow-documentation.jpg",
+    "submittedBy": "Startup Guide Team"
+  },
+  {
+    "title": "Build Relationships Early",
+    "text": "Strong relationships with customers, suppliers, mentors, and business partners can open doors to opportunities, advice, and long-term growth.",
+    "category": "Growth & Networking",
+    "image": "business-networking.jpg",
+    "submittedBy": "Startup Guide Team"
+  }
+]
