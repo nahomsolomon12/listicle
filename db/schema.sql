@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS business_items (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL UNIQUE,
+  slug TEXT NOT NULL UNIQUE,
+  text TEXT NOT NULL,
+  category TEXT NOT NULL,
+  image TEXT NOT NULL,
+  submitted_by TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

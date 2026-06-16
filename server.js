@@ -1,31 +1,43 @@
 import express from "express";
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { pool } from "./scripts/db.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3000;
-const businessPath = path.join(__dirname, "business.json");
 const publicDir = path.join(__dirname, "public");
 const srcDir = path.join(__dirname, "src");
 
-const businessItems = JSON.parse(readFileSync(businessPath, "utf8")).map(
-  (item) => ({
-    ...item,
-    slug: slugify(item.title),
-    imageUrl: createImageDataUri(item.title, item.category),
-  }),
-);
+const businessSelect = `
+  SELECT
+    id,
+    title,
+    slug,
+    text,
+    category,
+    image,
+    submitted_by AS "submittedBy"
+  FROM business_items
+`;
 
-function slugify(value) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+function withGeneratedFields(item) {
+  return {
+    ...item,
+    imageUrl: createImageDataUri(item.title, item.category),
+  };
+}
+
+async function getBusinessItems() {
+  const result = await pool.query(`${businessSelect} ORDER BY id ASC`);
+  return result.rows.map(withGeneratedFields);
+}
+
+async function getBusinessItemBySlug(slug) {
+  const result = await pool.query(`${businessSelect} WHERE slug = $1`, [slug]);
+  return result.rows[0] ? withGeneratedFields(result.rows[0]) : null;
 }
 
 function escapeXml(value) {
@@ -35,6 +47,15 @@ function escapeXml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&apos;");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function createImageDataUri(title, category) {
@@ -66,7 +87,7 @@ function renderLayout({ title, content, includeScript = false }) {
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>${title}</title>
+      <title>${escapeHtml(title)}</title>
       <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
       <link rel="stylesheet" href="/styles.css" />
@@ -107,28 +128,28 @@ function renderDetailPage(item) {
       <article class="detail-layout">
         <div class="detail-card detail-hero">
           <p class="eyebrow">Business Detail</p>
-          <h1>${item.title}</h1>
-          <p>${item.text}</p>
+          <h1>${escapeHtml(item.title)}</h1>
+          <p>${escapeHtml(item.text)}</p>
           <div class="hero-meta">
-            <span class="detail-chip">${item.category}</span>
-            <span class="detail-chip">${item.submittedBy}</span>
-            <span class="detail-chip">/${item.slug}</span>
+            <span class="detail-chip">${escapeHtml(item.category)}</span>
+            <span class="detail-chip">${escapeHtml(item.submittedBy)}</span>
+            <span class="detail-chip">/${escapeHtml(item.slug)}</span>
           </div>
-          <img src="${item.imageUrl}" alt="${item.title}" class="detail-image" />
+          <img src="${item.imageUrl}" alt="${escapeHtml(item.title)}" class="detail-image" />
         </div>
         <aside class="detail-card detail-fields">
           <h2>All fields</h2>
           <dl>
             <dt>Title</dt>
-            <dd>${item.title}</dd>
+            <dd>${escapeHtml(item.title)}</dd>
             <dt>Description</dt>
-            <dd>${item.text}</dd>
+            <dd>${escapeHtml(item.text)}</dd>
             <dt>Category</dt>
-            <dd>${item.category}</dd>
+            <dd>${escapeHtml(item.category)}</dd>
             <dt>Image</dt>
-            <dd>${item.image}</dd>
+            <dd>${escapeHtml(item.image)}</dd>
             <dt>Submitted by</dt>
-            <dd>${item.submittedBy}</dd>
+            <dd>${escapeHtml(item.submittedBy)}</dd>
           </dl>
           <a href="/">Back to all items</a>
         </aside>
@@ -140,18 +161,26 @@ function renderDetailPage(item) {
 app.use("/styles.css", express.static(path.join(publicDir, "styles.css")));
 app.use("/src", express.static(srcDir));
 
-app.get("/api/business", (_request, response) => {
-  response.json(businessItems);
+app.get("/api/business", async (_request, response, next) => {
+  try {
+    const businessItems = await getBusinessItems();
+    response.json(businessItems);
+  } catch (error) {
+    next(error);
+  }
 });
 
-app.get("/", (_request, response) => {
-  response.send(renderHomePage(businessItems));
+app.get("/", async (_request, response, next) => {
+  try {
+    const businessItems = await getBusinessItems();
+    response.send(renderHomePage(businessItems));
+  } catch (error) {
+    next(error);
+  }
 });
 
-app.get("/business/:slug", (request, response, next) => {
-  const item = businessItems.find(
-    (entry) => entry.slug === request.params.slug,
-  );
+app.get("/business/:slug", async (request, response, next) => {
+  const item = await getBusinessItemBySlug(request.params.slug);
 
   if (!item) {
     next();
@@ -159,6 +188,22 @@ app.get("/business/:slug", (request, response, next) => {
   }
 
   response.send(renderDetailPage(item));
+});
+
+app.use((error, _request, response, _next) => {
+  console.error(error);
+  response.status(500).send(
+    renderLayout({
+      title: "Server Error | Business Basics",
+      content: `
+        <article class="error-state">
+          <p class="eyebrow">Database Error</p>
+          <h1>Unable to load business items</h1>
+          <p>Check that DATABASE_URL points to your Render Postgres database and that the schema has been seeded.</p>
+        </article>
+      `,
+    }),
+  );
 });
 
 app.use((_request, response) => {

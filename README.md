@@ -1,11 +1,11 @@
 # Business Basics Listicle
 
-This is a simple business-basics listicle web app built with plain HTML, CSS, and JavaScript plus a small Express server. It uses `business.json` as the content source, renders a card-based homepage, and serves a dedicated routed page for each item.
+This is a simple business-basics listicle web app built with plain HTML, CSS, and JavaScript plus a small Express server. It stores list data in Postgres, renders a card-based homepage, and serves a dedicated routed page for each item.
 
 ## What the app does
 
 - Displays a styled front page with a clear title and hero section.
-- Loads list content from `business.json`.
+- Loads list content from a Postgres database.
 - Renders at least five unique list items in a responsive card grid.
 - Shows at least three visible attributes per item, including title, description, submitted by, route, and image name.
 - Lets users click each card to open a matching detail route.
@@ -18,13 +18,19 @@ This is a simple business-basics listicle web app built with plain HTML, CSS, an
 - CSS for custom layout and visual styling
 - JavaScript for fetching and rendering the homepage cards
 - Express for routing, page responses, and the JSON API
+- Postgres for persistent list data
+- `pg` for database queries
 - PicoCSS for the base design system
 
 ## Project Structure
 
 - `index.html` - Root document shell for the homepage
 - `server.js` - Express app, routed pages, 404 page, and JSON API
-- `business.json` - Source data for the list items
+- `business.json` - Seed source used to populate Postgres
+- `db/schema.sql` - Database table definition
+- `scripts/init-db.js` - Creates the database table
+- `scripts/seed-db.js` - Seeds the table from `business.json`
+- `scripts/db.js` - Shared Postgres connection pool
 - `src/main.js` - Client-side homepage renderer
 - `public/styles.css` - Shared styling for the whole app
 - `public/favicon.svg` - Browser tab icon
@@ -34,8 +40,25 @@ This is a simple business-basics listicle web app built with plain HTML, CSS, an
 
 - `npm run dev` - Starts the Express app with `nodemon`
 - `npm start` - Starts the Express app with Node
+- `npm run db:init` - Creates the Postgres schema
+- `npm run db:seed` - Seeds the Postgres table with the list items
 
 The app runs at `http://localhost:3000` by default.
+
+## Render Postgres Setup
+
+Create a Postgres instance on Render, then copy its external database URL.
+
+Set the URL in your shell before running the schema and seed commands:
+
+```powershell
+$env:DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+npm run db:init
+npm run db:seed
+npm start
+```
+
+On Render, add the same value as an environment variable named `DATABASE_URL` for the deployed web service. The server uses SSL automatically when `DATABASE_URL` is present.
 
 ## Routes
 
@@ -54,17 +77,17 @@ Example item routes:
 
 ## Data Model
 
-Each item in `business.json` includes these fields:
+Each row in the `business_items` table includes these fields:
 
 - `title`
+- `slug`
 - `text`
 - `category`
 - `image`
-- `submittedBy`
+- `submitted_by`
 
-The server also derives two runtime values for routing and visuals:
+The server also derives one runtime value for visuals:
 
-- `slug` - URL-safe identifier generated from the title
 - `imageUrl` - Inline SVG image generated for the card and detail page
 
 ## Content Included
@@ -94,4 +117,5 @@ The app currently ships with 10 business-basics list items:
 - This app does not use a frontend framework.
 - The homepage is rendered in the browser with JavaScript.
 - Routed detail pages and the 404 page are served directly by Express.
+- Database rows are returned through `GET /api/business` and rendered by the vanilla frontend.
 - The browser favicon is `public/favicon.svg`.

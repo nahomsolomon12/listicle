@@ -1,5 +1,13 @@
 const app = document.querySelector("#app");
 
+const escapeHtml = (value) =>
+  String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
 const excerpt = (text) =>
   `${text.slice(0, 120).trim()}${text.length > 120 ? "..." : ""}`;
 
@@ -25,15 +33,15 @@ const renderHome = (items) => {
         <article class="business-card">
           
           <div class="card-body">
-            <div class="card-kicker">${item.category}</div>
-            <h2>${item.title}</h2>
-            <p>${excerpt(item.text)}</p>
+            <div class="card-kicker">${escapeHtml(item.category)}</div>
+            <h2>${escapeHtml(item.title)}</h2>
+            <p>${escapeHtml(excerpt(item.text))}</p>
             <ul class="card-attributes">
-              <li><strong>Submitted by:</strong> ${item.submittedBy}</li>
-              <li><strong>Route:</strong> /business/${item.slug}</li>
+              <li><strong>Submitted by:</strong> ${escapeHtml(item.submittedBy)}</li>
+              <li><strong>Route:</strong> /business/${escapeHtml(item.slug)}</li>
               
             </ul>
-            <a class="contrast" href="/business/${item.slug}">View details</a>
+            <a class="contrast" href="/business/${encodeURIComponent(item.slug)}">View details</a>
           </div>
         </article>
       `,
@@ -48,7 +56,7 @@ fetch("/api/business")
     app.innerHTML = `
       <article class="error-state">
         <h1>Unable to load the list</h1>
-        <p>${error.message}</p>
+        <p>${escapeHtml(error.message)}</p>
       </article>
     `;
   });
